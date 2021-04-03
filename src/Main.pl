@@ -28,6 +28,20 @@ listEvent:-
     write(Date),write(" at "),write(H),write(":"),write(M),write(" and lasts for "),write(Duration),
     write(" hour(s)").
 
+todaysEvent:-
+    today(Year,Month,Date),
+    event(start_time(H,M),Duration,Name,Year,Month,Date),
+    write(Name),write(" starts today at "),write(H),write(":"),write(M),write(" and lasts for "),write(Duration),
+    write(" hour(s)").
+
+
+today(Year,Month,Day) :-
+    get_time(T),
+    date_time_value(year, DateTime, Year),
+    date_time_value(month, DateTime, Month),
+    date_time_value(day, DateTime, Day),
+    stamp_date_time(T, DateTime, local).
+
 createEvent(R):-
     write("What is this event?   "),
     flush_output(current_output),
