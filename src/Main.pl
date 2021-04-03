@@ -1,16 +1,32 @@
 :- dynamic event/6.
 
-validEvent(event(start_time(H,M),Duration,Name,Year,Month,Date)):-
+addValidEvent(event(start_time(H,M),Duration,Name,Year,Month,Date)):-
     event(start_time(H,M),Duration,Name,Year,Month,Date),
     write("Hey, this event already exists.").
 
-validEvent(event(start_time(H,M),Duration,Name,Year,Month,Date)):-
+addValidEvent(event(start_time(H,M),Duration,Name,Year,Month,Date)):-
        integer(H),integer(M),integer(Duration),integer(Year),integer(Month),integer(Date),
-       H>=0,H=<24,Duration>0.
+       H>=0,H=<24,M>=0,M=<59,Duration>0,Year>0,Month>0,Date>0,Month=<12,validDate(Year,Month,Date),
+       assert(event(start_time(H,M),Duration,Name,Year,Month,Date)).
 
-validEvent(event(start_time(H,M),Duration,Name,Year,Month,Date)):-
+addValidEvent(event(start_time(H,M),Duration,Name,Year,Month,Date)):-
     write("Hey, don't put weird stuff :("),false.
 
+validDate(Y,2,D):- (X is mod(Y,4)),(D=<29),X==0.
+validDate(Y,2,D):- (X is mod(Y,4)),(D=<28).
+validDate(_,M,D):- (X is mod(M,2)),(D=<31),(M<8),X==1.
+validDate(_,M,D):- (X is mod(M,2)),(D=<31),(M>=8),X==0.
+validDate(_,M,D):- (X is mod(M,2)),(D=<30),(M>=8),X==1.
+validDate(_,M,D):- (X is mod(M,2)),(D=<30),(M<8),(M-2>0),X==0.
+
+removeEvent(H,M,Duration,Name,Year,Month,Date):-
+    retract(event(start_time(H,M),Duration,Name,Year,Month,Date)).
+
+listEvent:-
+    event(start_time(H,M),Duration,Name,Year,Month,Date),
+    write(Name),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
+    write(Date),write(" at "),write(H),write(":"),write(M),write(" and lasts for "),write(Duration),
+    write(" hour(s)").
 
 createEvent(R):-
     write("What is this event?   "),
@@ -42,8 +58,7 @@ createEvent(R):-
     readln([Ln6|X]),
 
     %write(Ln),write(Ln1),write(Ln2),write(Ln3),write(Ln4),write(Ln5),write(Ln6),
-    validEvent(event(start_time(Ln1,Ln2),Ln3,Ln,Ln4,Ln5,Ln6)),
-    assert(event(start_time(Ln1,Ln2),Ln3,Ln,Ln4,Ln5,Ln6)).
+    addValidEvent(event(start_time(Ln1,Ln2),Ln3,Ln,Ln4,Ln5,Ln6)).
 
 
 %event(start_time(3,4),3,test,2021,3,31).
