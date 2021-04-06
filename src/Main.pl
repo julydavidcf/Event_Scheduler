@@ -3,7 +3,7 @@
   [
     add_event/8, % +Hour:integer, +Minute:integer, +Duration:integer, +Name:atom, +Year:integer, +Month:integer, +Date:integer, +Tag:atom
     delete_event/8, % +Hour:integer, +Minute:integer, +Duration:integer, +Name:atom, +Year:integer, +Month:integer, +Date:integer, +Tag:atom
-    delete_all_event/8, % +Hour:integer, +Minute:integer, +Duration:integer, +Name:atom, +Year:integer, +Month:integer, +Date:integer, +Tag:atom
+    delete_all_event/0, % +Hour:integer, +Minute:integer, +Duration:integer, +Name:atom, +Year:integer, +Month:integer, +Date:integer, +Tag:atom
     current_event/8 % ?Hour:integer, ?Minute:integer, ?Duration:integer, ?Name:atom, ?Year:integer, ?Month:integer, ?Date:integer, ?Tag:atom
   ]
 ).
@@ -25,7 +25,7 @@ current_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag):-
 delete_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag):-
    with_mutex(event_db, retract_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag)).
 
-delete_all_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag):-
+delete_all_event:-
    with_mutex(event_db, retractall_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag)).
 
 
