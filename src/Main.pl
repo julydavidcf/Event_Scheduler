@@ -12,7 +12,7 @@
 
 :- persistent(event(hour:integer,minute:integer,duration:integer,name:atom,year:integer,month:integer,date:integer,tag:atom)).
 
-:- initialization(db_attach('scheduleKeeper.pl',[])).
+:- initialization(db_attach('./scheduleKeeper.pl',[])).
 
 
 add_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag):-
@@ -61,6 +61,7 @@ createEvent(R):-
     write("Specify a tag "),
     flush_output(current_output),
     readln([Ln7|X]),
+    write(Ln7),
     addValidEvent(event(Ln1,Ln2,Ln3,Ln,Ln4,Ln5,Ln6,Ln7)),
      add_event(Ln1,Ln2,Ln3,Ln,Ln4,Ln5,Ln6,Ln7).
 
@@ -70,6 +71,7 @@ addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag)):-
 
 addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag)):-
    integer(H),integer(M),integer(Duration),integer(Year),integer(Month),integer(Date), H>=0,H=<24,M>=0,M=<59,Duration>0,Year>0,Month>0,Date>0,Month=<12,validDate(Year,Month,Date).
+  %assert(event(H,M,Duration,Name,Year,Month,Date))
 
 
 addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag)):-
@@ -88,7 +90,7 @@ removeEvent(H,M,Duration,Name,Year,Month,Date,Tag):-
 
 listEvent:-
     event(H,M,Duration,Name,Year,Month,Date,Tag),
-    write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
+    write(Name),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
     write(Date),write(" at "),write(H),write(":"),write(M),write(" and lasts for "),write(Duration),
     write(" hour(s)").
 
@@ -131,3 +133,81 @@ showTag(Tag):-
    event(_,_,_,X,_,_,_,Tag),
    write("Name: "),
    write(X).
+
+modifyName:-
+   write("Hour of event? "),
+   flush_output(current_output),
+   readln([Ln|X]),
+
+   write("Minute of event? "),
+   flush_output(current_output),
+   readln([Ln1|X]),
+
+   write("Year of event? "),
+   flush_output(current_output),
+   readln([Ln2|X]),
+
+   write("Month of event? "),
+   flush_output(current_output),
+   readln([Ln3|X]),
+
+   write("Date of event? "),
+   flush_output(current_output),
+   readln([Ln4|X]),
+
+   write("Tag of event? "),
+   flush_output(current_output),
+   readln([Ln5|X]),
+
+   write("What would you like the name to be changed to? "),
+   flush_output(current_output),
+   readln([Ln6|X]),
+
+   removeEvent(A,B,N,_,C,D,E,F),
+   A = Ln,
+   B = Ln1,
+   C = Ln2,
+   D = Ln3,
+   E = Ln4,
+   F = Ln5,
+   add_event(Ln,Ln1,N,Ln6,Ln2,Ln3,Ln4,Ln5).
+
+modifyTag:-
+   write("Hour of event? "),
+   flush_output(current_output),
+   readln([Ln|X]),
+
+   write("Minute of event? "),
+   flush_output(current_output),
+   readln([Ln1|X]),
+
+   write("Year of event? "),
+   flush_output(current_output),
+   readln([Ln2|X]),
+
+   write("Name of event? "),
+   flush_output(current_output),
+   readln([Ln3|X]),
+
+   write("Month of event? "),
+   flush_output(current_output),
+   readln([Ln4|X]),
+
+   write("Date of event? "),
+   flush_output(current_output),
+   readln([Ln5|X]),
+
+
+   write("What would you like the tag to be changed to? "),
+   flush_output(current_output),
+   readln([Ln6|X]),
+
+   removeEvent(Hour,Minute,Duration,Name,Year,Month,Date,O),
+   Hour = Ln,
+   Minute = Ln1,
+   Year = Ln2,
+   Name = Ln3,
+   Month = Ln4,
+   Date = Ln5,
+   add_event(Ln,Ln1,Duration,Ln3,Ln2,Ln4,Ln5,Ln6).
+
