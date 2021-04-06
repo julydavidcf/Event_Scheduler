@@ -127,3 +127,7 @@ deleteBeforeToday(Year,Month,Day):-
 deleteBeforeToday(_,_,_):-
    true.
 
+showTag(Tag):-
+   event(_,_,_,X,_,_,_,Tag),
+   write("Name: "),
+   write(X).
