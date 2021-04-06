@@ -81,7 +81,7 @@ validDate(_,M,D):- (X is mod(M,2)),(D=<30),(M>=8),X==1.
 validDate(_,M,D):- (X is mod(M,2)),(D=<30),(M<8),(M-2>0),X==0.
 
 removeEvent(H,M,Duration,Name,Year,Month,Date):-
-    retract(event(H,M,Duration,Name,Year,Month,Date)).
+    retract(event(H,M,Duration,Name,Year,Month,Date)),
     delete_event(H,M,Duration,Name,Year,Month,Date).
 
 listEvent:-
