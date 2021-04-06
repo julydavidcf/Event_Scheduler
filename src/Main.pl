@@ -106,5 +106,24 @@ today(Year,Month,Day) :-
     date_time_value(day, DateTime, Day),
     stamp_date_time(T, DateTime, local).
 
+deleteBeforeToday(Year,Month,Day):-
+    today(Year,Month,Day),
+    removeEvent(_,_,_,_,X,_,_,_),
+    X < Year,
+    deleteBeforeToday(Year,Month,Day).
 
+deleteBeforeToday(Year,Month,Day):-
+   today(Year,Month,Day),
+   removeEvent(_,_,_,_,Year,X,_,_),
+   X<Month,
+   deleteBeforeToday(Year,Month,Day).
+
+deleteBeforeToday(Year,Month,Day):-
+   today(Year,Month,Day),
+   removeEvent(_,_,_,_,Year,Month,X,_),
+   X<Day,
+   deleteBeforeToday(Year,Month,Day).
+
+deleteBeforeToday(_,_,_):-
+   true.
 
