@@ -61,7 +61,6 @@ createEvent(R):-
     write("Specify a tag "),
     flush_output(current_output),
     readln([Ln7|X]),
-    write(Ln7),
     addValidEvent(event(Ln1,Ln2,Ln3,Ln,Ln4,Ln5,Ln6,Ln7)),
      add_event(Ln1,Ln2,Ln3,Ln,Ln4,Ln5,Ln6,Ln7).
 
@@ -71,7 +70,6 @@ addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag)):-
 
 addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag)):-
    integer(H),integer(M),integer(Duration),integer(Year),integer(Month),integer(Date), H>=0,H=<24,M>=0,M=<59,Duration>0,Year>0,Month>0,Date>0,Month=<12,validDate(Year,Month,Date).
-  %assert(event(H,M,Duration,Name,Year,Month,Date))
 
 
 addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag)):-
@@ -90,7 +88,7 @@ removeEvent(H,M,Duration,Name,Year,Month,Date,Tag):-
 
 listEvent:-
     event(H,M,Duration,Name,Year,Month,Date,Tag),
-    write(Name),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
+    write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
     write(Date),write(" at "),write(H),write(":"),write(M),write(" and lasts for "),write(Duration),
     write(" hour(s)").
 
