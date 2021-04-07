@@ -108,4 +108,4 @@ today(Year,Month,Day) :-
 
 
 
-%comment
+%c
