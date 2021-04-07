@@ -90,24 +90,109 @@ removeEvent(H,M,Duration,Name,Year,Month,Date,Tag):-
     delete_event(H,M,Duration,Name,Year,Month,Date,Tag).
 
 listEvent:-
+     today(G,L,J),deleteBeforeToday(G,L,J),
     event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+    H>=10,
+    M>=10,
     write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
     write(Date),write(" at "),write(H),write(":"),write(M),write(" and lasts for "),write(Duration),
     write(" hour(s)       due in "),write(R),write(" days.").
 
-todaysEvent:-
-    today(Year,Month,Date),
+listEvent:-
+     today(G,L,J),deleteBeforeToday(G,L,J),
     event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+    H<10,
+    M>=10,
+    write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
+    write(Date),write(" at "),write("0"),write(H),write(":"),write(M),write(" and lasts for "),write(Duration),
+    write(" hour(s)       due in "),write(R),write(" days.").
+
+listEvent:-
+     today(G,L,J),deleteBeforeToday(G,L,J),
+    event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+    M<10,
+    H>=10,
+    write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
+    write(Date),write(" at "),write(H),write(":"),write("0"),write(M),write(" and lasts for "),write(Duration),
+    write(" hour(s)       due in "),write(R),write(" days.").
+
+listEvent:-
+     today(G,L,J),deleteBeforeToday(G,L,J),
+    event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+    M<10,
+    H<10,
+    write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
+    write(Date),write(" at "),write("0"),write(H),write(":"),write("0"),write(M),write(" and lasts for "),write(Duration),
+    write(" hour(s)       due in "),write(R),write(" days.").
+
+
+todaysEvent:-
+    today(Year,Month,Date),deleteBeforeToday(Year,Month,Date),
+    event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+    H>=10,
+    M>=10,
     write(Name),write("("),write(Tag),write(")"),write(" starts today at "),write(H),write(":"),write(M),write(" and lasts for "),write(Duration),
     write(" hour(s)       "),write("due today.").
 
-tagged(Tag):-
+todaysEvent:-
+    today(Year,Month,Date),deleteBeforeToday(Year,Month,Date),
     event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+    H<10,
+    M>=10,
+    write(Name),write("("),write(Tag),write(")"),write(" starts today at "),write("0"),write(H),write(":"),write(M),write(" and lasts for "),write(Duration),
+    write(" hour(s)       "),write("due today.").
+
+todaysEvent:-
+    today(Year,Month,Date),deleteBeforeToday(Year,Month,Date),
+    event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+    H>=10,
+    M<10,
+    write(Name),write("("),write(Tag),write(")"),write(" starts today at "),write(H),write(":"),write("0"),write(M),write(" and lasts for "),write(Duration),
+    write(" hour(s)       "),write("due today.").
+
+todaysEvent:-
+    today(Year,Month,Date),deleteBeforeToday(Year,Month,Date),
+    event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+    H<10,
+    M<10,
+    write(Name),write("("),write(Tag),write(")"),write(" starts today at "),write("0"),write(H),write(":"),write("0"),write(M),write(" and lasts for "),write(Duration),
+    write(" hour(s)       "),write("due today.").
+
+tagged(Tag):-
+   today(G,L,J),deleteBeforeToday(G,L,J),
+    event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+    H>=10,
+    M>=10,
     write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
     write(Date),write(" at "),write(H),write(":"),write(M),write(" and lasts for "),write(Duration),
     write(" hour(s)       due in "),write(R),write(" days.").
 
+tagged(Tag):-
+   today(G,L,J),deleteBeforeToday(G,L,J),
+    event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+    H>=10,
+    M<10,
+    write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
+    write(Date),write(" at "),write(H),write(":"),write("0"),write(M),write(" and lasts for "),write(Duration),
+    write(" hour(s)       due in "),write(R),write(" days.").
 
+tagged(Tag):-
+   today(G,L,J),deleteBeforeToday(G,L,J),
+    event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+    H<10,
+    M>=10,
+    write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
+    write(Date),write(" at "),write("0"),write(H),write(":"),write(M),write(" and lasts for "),write(Duration),
+    write(" hour(s)       due in "),write(R),write(" days.").
+
+tagged(Tag):-
+   today(G,L,J),deleteBeforeToday(G,L,J),
+    event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+    H<10,
+    M<10,
+    write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
+    write(Date),write(" at "),write("0"),write(H),write(":"),write("0"),write(M),write(" and lasts for "),write(Duration),
+    write(" hour(s)       due in "),write(R),write(" days.").
 
 today(Year,Month,Day) :-
     get_time(T),
@@ -146,30 +231,25 @@ dateCal(Y1,M1,D1,Y2,M2,D2,R):-
     (R is Z+A).
 
 deleteBeforeToday(Year,Month,Day):-
-    today(Year,Month,Day),
-    removeEvent(_,_,_,_,X,_,_,_),
-    X < Year,
-    deleteBeforeToday(Year,Month,Day).
-
-deleteBeforeToday(Year,Month,Day):-
-   today(Year,Month,Day),
-   removeEvent(_,_,_,_,Year,X,_,_),
-   X<Month,
+   event(A,B,C,D,X,E,F,G),
+   X < Year,
+   removeEvent(A,B,C,D,X,E,F,G),
    deleteBeforeToday(Year,Month,Day).
 
 deleteBeforeToday(Year,Month,Day):-
-   today(Year,Month,Day),
-   removeEvent(_,_,_,_,Year,Month,X,_),
+   event(A,B,C,D,Year,X,E,F),
+   X<Month,
+   removeEvent(A,B,C,D,Year,X,E,F),
+   deleteBeforeToday(Year,Month,Day).
+
+deleteBeforeToday(Year,Month,Day):-
+   event(A,B,C,D,Year,Month,X,E),
    X<Day,
+   removeEvent(A,B,C,D,Year,Month,X,E),
    deleteBeforeToday(Year,Month,Day).
 
 deleteBeforeToday(_,_,_):-
    true.
-
-showTag(Tag):-
-   event(_,_,_,X,_,_,_,Tag),
-   write("Name: "),
-   write(X).
 
 modifyName:-
    write("Hour of event? "),
@@ -196,18 +276,23 @@ modifyName:-
    flush_output(current_output),
    readln([Ln5|X]),
 
+   write("Original name? "),
+   flush_output(current_output),
+   readln([Ln7|X]),
+
    write("What would you like the name to be changed to? "),
    flush_output(current_output),
    readln([Ln6|X]),
 
-   removeEvent(A,B,N,_,C,D,E,F),
-   A = Ln,
-   B = Ln1,
-   C = Ln2,
-   D = Ln3,
-   E = Ln4,
-   F = Ln5,
-   add_event(Ln,Ln1,N,Ln6,Ln2,Ln3,Ln4,Ln5).
+   removeEvent(Hour,Minute,Duration,Name,Year,Month,Date,Tag),
+   Hour = Ln,
+   Minute = Ln1,
+   Year = Ln2,
+   Month = Ln3,
+   Date = Ln4,
+   Tag = Ln5,
+   Name = Ln7,
+   add_event(Ln,Ln1,Duration,Ln6,Ln2,Ln3,Ln4,Ln5).
 
 modifyTag:-
    write("Hour of event? "),
@@ -235,11 +320,15 @@ modifyTag:-
    readln([Ln5|X]),
 
 
+   write("Original Tag? "),
+   flush_output(current_output),
+   readln([Ln7|X]),
+
    write("What would you like the tag to be changed to? "),
    flush_output(current_output),
    readln([Ln6|X]),
 
-   removeEvent(Hour,Minute,Duration,Name,Year,Month,Date,O),
+   removeEvent(Hour,Minute,Duration,Name,Year,Month,Date,Ln7),
    Hour = Ln,
    Minute = Ln1,
    Year = Ln2,
@@ -247,6 +336,4 @@ modifyTag:-
    Month = Ln4,
    Date = Ln5,
    add_event(Ln,Ln1,Duration,Ln3,Ln2,Ln4,Ln5,Ln6).
-
-
 
