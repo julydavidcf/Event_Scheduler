@@ -1,32 +1,27 @@
+%initialization
+%====================================================================
 :- module(
   event,
   [
-    add_event/8, % +Hour:integer, +Minute:integer, +Duration:integer, +Name:atom, +Year:integer, +Month:integer, +Date:integer, +Tag:atom
-    delete_event/8, % +Hour:integer, +Minute:integer, +Duration:integer, +Name:atom, +Year:integer, +Month:integer, +Date:integer, +Tag:atom
-    delete_all_event/0 % +Hour:integer, +Minute:integer, +Duration:integer, +Name:atom, +Year:integer, +Month:integer, +Date:integer, +Tag:atom
+    add_event/9,
+    delete_event/9,
+    removeAll/0
   ]
 ).
 dateCal/6.
 
 :- use_module(library(persistency)).
 
-:- persistent(event(hour:integer,minute:integer,duration:integer,name:atom,year:integer,month:integer,date:integer,tag:atom)).
+:- persistent(event(hour:integer,minute:integer,duration:integer,name:atom,year:integer,month:integer,date:integer,tag:atom,id:integer)).
 
 :- initialization(db_attach('scheduleKeeper.pl',[])).
 
-%adds an event to the KB
-add_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag):-
-   with_mutex(event_db, assert_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag)).
+%user functions
+%===================================================================================
 
-
-%delete a specific event from KB
-delete_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag):-
-   with_mutex(event_db, retract_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag)).
-
-%clears all events from KB
-delete_all_event:-
-   with_mutex(event_db, retractall_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag)).
-
+%clears all event that passed the due date
+update:-
+    today(G,L,J),deleteBeforeToday(G,L,J).
 
 %creats an event according to the user
 createEvent:-
@@ -61,19 +56,112 @@ createEvent:-
     write("Specify a tag.  "),
     flush_output(current_output),
     readln([Ln7|X]),
-    addValidEvent(event(Ln1,Ln2,Ln3,Ln,Ln4,Ln5,Ln6,Ln7)),
-     add_event(Ln1,Ln2,Ln3,Ln,Ln4,Ln5,Ln6,Ln7).
+
+    idGen(1000,ID),
+    write("Your event is created with ID: "), write(ID),
+
+
+    addValidEvent(event(Ln1,Ln2,Ln3,Ln,Ln4,Ln5,Ln6,Ln7,ID)),
+     add_event(Ln1,Ln2,Ln3,Ln,Ln4,Ln5,Ln6,Ln7,ID),
+     update.
+
+%removes a event by user
+remove:-
+    update,
+    write("What's the id of the event you want to remove? "),
+    flush_output(current_output),
+    readln([ID|XXX]),
+    removeEvent(Hour,Minute,Duration,Name,Year,Month,Date,Tag,ID),
+    write("Event "),write(ID),write(" removed.").
+
+%clears all events from KB
+removeAll:-
+   with_mutex(event_db, retractall_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag,ID)).
+
+
+%lists all events in KB
+listEvent:-
+    today(G,L,J),deleteBeforeToday(G,L,J),
+    event(H,M,Duration,Name,Year,Month,Date,Tag,ID),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+    printEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID),R).
+
+%lists all events that is due today
+todaysEvent:-
+    today(Year,Month,Date),deleteBeforeToday(Year,Month,Date),
+    event(H,M,Duration,Name,Year,Month,Date,Tag,ID),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+    printEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID),R).
+
+%lists all events with a speific tag
+tagged(Tag):-
+   today(G,L,J),deleteBeforeToday(G,L,J),
+    event(H,M,Duration,Name,Year,Month,Date,Tag,ID),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+    printEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID),R).
+
+
+%get an event by id
+checkId:-
+   write("What's the id of the event? "),
+   flush_output(current_output),
+   readln([ID|XXX]),
+    update,
+    event(H,M,Duration,Name,Year,Month,Date,Tag,ID),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+    printEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID),R).
+
+
+%modifies the name of a specific event
+modifyName:-
+   update,
+   write("What's the id of the event? "),
+   flush_output(current_output),
+   readln([ID|XXX]),
+   event(_,_,_,Nx,_,_,_,_,ID),
+   write("What would you like the original name '"), write(Nx),write("' to?   "),
+   flush_output(current_output),
+   readln([Ln6|LLL]),
+   removeEvent(Hour,Minute,Duration,Name,Year,Month,Date,Tag,ID),
+   add_event(Hour,Minute,Duration,Ln6,Year,Month,Date,Tag,ID),
+   today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+   printEvent(event(Hour,Minute,Duration,Ln6,Year,Month,Date,Tag,ID),R).
+
+%modifies the tag of a specific event
+modifyTag:-
+   update,
+   write("What's the id of the event? "),
+   flush_output(current_output),
+   readln([ID|XXX]),
+   event(_,_,_,_,_,_,_,Nx,ID),
+   write("What would you like the original tag '"), write(Nx),write("' to?   "),
+   flush_output(current_output),
+   readln([Ln6|LLL]),
+   removeEvent(Hour,Minute,Duration,Name,Year,Month,Date,Tag,ID),
+   add_event(Hour,Minute,Duration,Name,Year,Month,Date,Ln6,ID),
+   today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+   printEvent(event(Hour,Minute,Duration,Name,Year,Month,Date,Ln6,ID),R).
+
+
+%helper functions.
+%==================================================================================
+%adds an event to the KB
+add_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag,ID):-
+   with_mutex(event_db, assert_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag,ID)).
+
+
+%delete a specific event from KB
+delete_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag,ID):-
+   with_mutex(event_db, retract_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag,ID)).
+
+
 
 %checks if the event is valid
-addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag)):-
-    event(H,M,Duration,Name,Year,Month,Date,Tag),
+addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID)):-
+    event(H,M,Duration,Name,Year,Month,Date,Tag,ID),
     write("Hey, this event already exists.").
 
-addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag)):-
+addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID)):-
    integer(H),integer(M),integer(Duration),integer(Year),integer(Month),integer(Date), H>=0,H<24,M>=0,M=<59,Duration>0,Year>0,Month>0,Date>0,Month=<12,validDate(Year,Month,Date).
 
 
-addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag)):-
+addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID)):-
     write("Hey, don't put weird stuff :("),false.
 
 %checks if the dats is valid
@@ -85,116 +173,50 @@ validDate(_,M,D):- (X is mod(M,2)),(D=<30),(M>=8),X==1.
 validDate(_,M,D):- (X is mod(M,2)),(D=<30),(M<8),(M-2>0),X==0.
 
 %seconday call on delete event
-removeEvent(H,M,Duration,Name,Year,Month,Date,Tag):-
-    %retract(event(H,M,Duration,Name,Year,Month,Date)),
-    delete_event(H,M,Duration,Name,Year,Month,Date,Tag).
+removeEvent(H,M,Duration,Name,Year,Month,Date,Tag,ID):-
+    delete_event(H,M,Duration,Name,Year,Month,Date,Tag,ID).
 
-%lists all events in KB
-listEvent:-
-     today(G,L,J),deleteBeforeToday(G,L,J),
-    event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+
+
+%generates a unique id for an event from 1000->9999
+idGen(A,B):-
+    not(event(_,_,_,_,_,_,_,_,A)), B is A.
+idGen(A,B):-
+    X is A+1,
+    X<10000,
+    idGen(X,B).
+idGen(A,B):-
+    write("You've got too many events!"),false.
+
+%prints a event
+printEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID),R):-
     H>=10,
     M>=10,
-    write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
+    write("id: "),write(ID),write("  "),write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
     write(Date),write(" at "),write(H),write(":"),write(M),write(" and lasts for "),write(Duration),
     write(" hour(s)       due in "),write(R),write(" days.").
 
-listEvent:-
-     today(G,L,J),deleteBeforeToday(G,L,J),
-    event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+printEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID),R):-
     H<10,
     M>=10,
-    write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
+    write("id: "),write(ID),write("  "),write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
     write(Date),write(" at "),write("0"),write(H),write(":"),write(M),write(" and lasts for "),write(Duration),
     write(" hour(s)       due in "),write(R),write(" days.").
 
-listEvent:-
-     today(G,L,J),deleteBeforeToday(G,L,J),
-    event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+printEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID),R):-
     M<10,
     H>=10,
-    write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
+    write("id: "),write(ID),write("  "),write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
     write(Date),write(" at "),write(H),write(":"),write("0"),write(M),write(" and lasts for "),write(Duration),
     write(" hour(s)       due in "),write(R),write(" days.").
 
-listEvent:-
-     today(G,L,J),deleteBeforeToday(G,L,J),
-    event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+printEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID),R):-
     M<10,
     H<10,
-    write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
+    write("id: "),write(ID),write("  "),write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
     write(Date),write(" at "),write("0"),write(H),write(":"),write("0"),write(M),write(" and lasts for "),write(Duration),
     write(" hour(s)       due in "),write(R),write(" days.").
 
-%lists all events that is due today
-todaysEvent:-
-    today(Year,Month,Date),deleteBeforeToday(Year,Month,Date),
-    event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
-    H>=10,
-    M>=10,
-    write(Name),write("("),write(Tag),write(")"),write(" starts today at "),write(H),write(":"),write(M),write(" and lasts for "),write(Duration),
-    write(" hour(s)       "),write("due today.").
-
-todaysEvent:-
-    today(Year,Month,Date),deleteBeforeToday(Year,Month,Date),
-    event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
-    H<10,
-    M>=10,
-    write(Name),write("("),write(Tag),write(")"),write(" starts today at "),write("0"),write(H),write(":"),write(M),write(" and lasts for "),write(Duration),
-    write(" hour(s)       "),write("due today.").
-
-todaysEvent:-
-    today(Year,Month,Date),deleteBeforeToday(Year,Month,Date),
-    event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
-    H>=10,
-    M<10,
-    write(Name),write("("),write(Tag),write(")"),write(" starts today at "),write(H),write(":"),write("0"),write(M),write(" and lasts for "),write(Duration),
-    write(" hour(s)       "),write("due today.").
-
-todaysEvent:-
-    today(Year,Month,Date),deleteBeforeToday(Year,Month,Date),
-    event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
-    H<10,
-    M<10,
-    write(Name),write("("),write(Tag),write(")"),write(" starts today at "),write("0"),write(H),write(":"),write("0"),write(M),write(" and lasts for "),write(Duration),
-    write(" hour(s)       "),write("due today.").
-
-%lists all events with a speific tag
-tagged(Tag):-
-   today(G,L,J),deleteBeforeToday(G,L,J),
-    event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
-    H>=10,
-    M>=10,
-    write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
-    write(Date),write(" at "),write(H),write(":"),write(M),write(" and lasts for "),write(Duration),
-    write(" hour(s)       due in "),write(R),write(" days.").
-
-tagged(Tag):-
-   today(G,L,J),deleteBeforeToday(G,L,J),
-    event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
-    H>=10,
-    M<10,
-    write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
-    write(Date),write(" at "),write(H),write(":"),write("0"),write(M),write(" and lasts for "),write(Duration),
-    write(" hour(s)       due in "),write(R),write(" days.").
-
-tagged(Tag):-
-   today(G,L,J),deleteBeforeToday(G,L,J),
-    event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
-    H<10,
-    M>=10,
-    write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
-    write(Date),write(" at "),write("0"),write(H),write(":"),write(M),write(" and lasts for "),write(Duration),
-    write(" hour(s)       due in "),write(R),write(" days.").
-
-tagged(Tag):-
-   today(G,L,J),deleteBeforeToday(G,L,J),
-    event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
-    H<10,
-    M<10,
-    write(Name),write("("),write(Tag),write(")"),write(" starts at "),write(Year),write("-"),write(Month),write("-"),
-    write(Date),write(" at "),write("0"),write(H),write(":"),write("0"),write(M),write(" and lasts for "),write(Duration),
-    write(" hour(s)       due in "),write(R),write(" days.").
 
 %returns the system time for today
 today(Year,Month,Day) :-
@@ -203,6 +225,8 @@ today(Year,Month,Day) :-
     date_time_value(month, DateTime, Month),
     date_time_value(day, DateTime, Day),
     stamp_date_time(T, DateTime, local).
+
+
 
 %calculate the number of days between the two given dates
 %second date must be later than the first date
@@ -237,111 +261,25 @@ dateCal(Y1,M1,D1,Y2,M2,D2,R):-
 
 %removes all events from the KB before a certain date
 deleteBeforeToday(Year,Month,Day):-
-   event(A,B,C,D,X,E,F,G),
+   event(A,B,C,D,X,E,F,G,H),
    X < Year,
-   removeEvent(A,B,C,D,X,E,F,G),
+   removeEvent(A,B,C,D,X,E,F,G,H),
    deleteBeforeToday(Year,Month,Day).
 
 deleteBeforeToday(Year,Month,Day):-
-   event(A,B,C,D,Year,X,E,F),
+   event(A,B,C,D,Year,X,E,F,G),
    X<Month,
-   removeEvent(A,B,C,D,Year,X,E,F),
+   removeEvent(A,B,C,D,Year,X,E,F,G),
    deleteBeforeToday(Year,Month,Day).
 
 deleteBeforeToday(Year,Month,Day):-
-   event(A,B,C,D,Year,Month,X,E),
+   event(A,B,C,D,Year,Month,X,E,F),
    X<Day,
-   removeEvent(A,B,C,D,Year,Month,X,E),
+   removeEvent(A,B,C,D,Year,Month,X,E,F),
    deleteBeforeToday(Year,Month,Day).
 
 deleteBeforeToday(_,_,_):-
    true.
 
-%modifies the name of a specific event
-modifyName:-
-   write("Hour of event? "),
-   flush_output(current_output),
-   readln([Ln|X]),
 
-   write("Minute of event? "),
-   flush_output(current_output),
-   readln([Ln1|X]),
-
-   write("Year of event? "),
-   flush_output(current_output),
-   readln([Ln2|X]),
-
-   write("Month of event? "),
-   flush_output(current_output),
-   readln([Ln3|X]),
-
-   write("Date of event? "),
-   flush_output(current_output),
-   readln([Ln4|X]),
-
-   write("Tag of event? "),
-   flush_output(current_output),
-   readln([Ln5|X]),
-
-   write("Original name? "),
-   flush_output(current_output),
-   readln([Ln7|X]),
-
-   write("What would you like the name to be changed to? "),
-   flush_output(current_output),
-   readln([Ln6|X]),
-
-   removeEvent(Hour,Minute,Duration,Name,Year,Month,Date,Tag),
-   Hour = Ln,
-   Minute = Ln1,
-   Year = Ln2,
-   Month = Ln3,
-   Date = Ln4,
-   Tag = Ln5,
-   Name = Ln7,
-   add_event(Ln,Ln1,Duration,Ln6,Ln2,Ln3,Ln4,Ln5).
-
-%modifies the tag of a specific event
-modifyTag:-
-   write("Hour of event? "),
-   flush_output(current_output),
-   readln([Ln|X]),
-
-   write("Minute of event? "),
-   flush_output(current_output),
-   readln([Ln1|X]),
-
-   write("Year of event? "),
-   flush_output(current_output),
-   readln([Ln2|X]),
-
-   write("Name of event? "),
-   flush_output(current_output),
-   readln([Ln3|X]),
-
-   write("Month of event? "),
-   flush_output(current_output),
-   readln([Ln4|X]),
-
-   write("Date of event? "),
-   flush_output(current_output),
-   readln([Ln5|X]),
-
-
-   write("Original Tag? "),
-   flush_output(current_output),
-   readln([Ln7|X]),
-
-   write("What would you like the tag to be changed to? "),
-   flush_output(current_output),
-   readln([Ln6|X]),
-
-   removeEvent(Hour,Minute,Duration,Name,Year,Month,Date,Ln7),
-   Hour = Ln,
-   Minute = Ln1,
-   Year = Ln2,
-   Name = Ln3,
-   Month = Ln4,
-   Date = Ln5,
-   add_event(Ln,Ln1,Duration,Ln3,Ln2,Ln4,Ln5,Ln6).
 
