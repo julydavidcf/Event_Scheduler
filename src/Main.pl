@@ -9,7 +9,7 @@
   ]
 ).
 dateCal/6.
-
+:-[Holiday].
 :- use_module(library(persistency)).
 
 :- persistent(event(hour:integer,minute:integer,duration:integer,name:atom,year:integer,month:integer,date:integer,tag:atom,id:integer)).
