@@ -3,8 +3,7 @@
   [
     add_event/8, % +Hour:integer, +Minute:integer, +Duration:integer, +Name:atom, +Year:integer, +Month:integer, +Date:integer, +Tag:atom
     delete_event/8, % +Hour:integer, +Minute:integer, +Duration:integer, +Name:atom, +Year:integer, +Month:integer, +Date:integer, +Tag:atom
-    delete_all_event/0, % +Hour:integer, +Minute:integer, +Duration:integer, +Name:atom, +Year:integer, +Month:integer, +Date:integer, +Tag:atom
-    current_event/8 % ?Hour:integer, ?Minute:integer, ?Duration:integer, ?Name:atom, ?Year:integer, ?Month:integer, ?Date:integer, ?Tag:atom
+    delete_all_event/0 % +Hour:integer, +Minute:integer, +Duration:integer, +Name:atom, +Year:integer, +Month:integer, +Date:integer, +Tag:atom
   ]
 ).
 dateCal/6.
@@ -15,23 +14,21 @@ dateCal/6.
 
 :- initialization(db_attach('scheduleKeeper.pl',[])).
 
-
+%adds an event to the KB
 add_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag):-
    with_mutex(event_db, assert_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag)).
 
-current_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag):-
-    with_mutex(event_db,event(Hour,Minute,Duration,Name,Year,Month,Date,Tag)).
 
-
+%delete a specific event from KB
 delete_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag):-
    with_mutex(event_db, retract_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag)).
 
+%clears all events from KB
 delete_all_event:-
    with_mutex(event_db, retractall_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag)).
 
 
-
-
+%creats an event according to the user
 createEvent:-
     write("What is this event?   "),
     flush_output(current_output),
@@ -67,6 +64,7 @@ createEvent:-
     addValidEvent(event(Ln1,Ln2,Ln3,Ln,Ln4,Ln5,Ln6,Ln7)),
      add_event(Ln1,Ln2,Ln3,Ln,Ln4,Ln5,Ln6,Ln7).
 
+%checks if the event is valid
 addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag)):-
     event(H,M,Duration,Name,Year,Month,Date,Tag),
     write("Hey, this event already exists.").
@@ -78,6 +76,7 @@ addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag)):-
 addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag)):-
     write("Hey, don't put weird stuff :("),false.
 
+%checks if the dats is valid
 validDate(Y,2,D):- (X is mod(Y,4)),(D=<29),X==0.
 validDate(Y,2,D):- (X is mod(Y,4)),(D=<28).
 validDate(_,M,D):- (X is mod(M,2)),(D=<31),(M<8),X==1.
@@ -85,10 +84,12 @@ validDate(_,M,D):- (X is mod(M,2)),(D=<31),(M>=8),X==0.
 validDate(_,M,D):- (X is mod(M,2)),(D=<30),(M>=8),X==1.
 validDate(_,M,D):- (X is mod(M,2)),(D=<30),(M<8),(M-2>0),X==0.
 
+%seconday call on delete event
 removeEvent(H,M,Duration,Name,Year,Month,Date,Tag):-
     %retract(event(H,M,Duration,Name,Year,Month,Date)),
     delete_event(H,M,Duration,Name,Year,Month,Date,Tag).
 
+%lists all events in KB
 listEvent:-
      today(G,L,J),deleteBeforeToday(G,L,J),
     event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
@@ -125,7 +126,7 @@ listEvent:-
     write(Date),write(" at "),write("0"),write(H),write(":"),write("0"),write(M),write(" and lasts for "),write(Duration),
     write(" hour(s)       due in "),write(R),write(" days.").
 
-
+%lists all events that is due today
 todaysEvent:-
     today(Year,Month,Date),deleteBeforeToday(Year,Month,Date),
     event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
@@ -158,6 +159,7 @@ todaysEvent:-
     write(Name),write("("),write(Tag),write(")"),write(" starts today at "),write("0"),write(H),write(":"),write("0"),write(M),write(" and lasts for "),write(Duration),
     write(" hour(s)       "),write("due today.").
 
+%lists all events with a speific tag
 tagged(Tag):-
    today(G,L,J),deleteBeforeToday(G,L,J),
     event(H,M,Duration,Name,Year,Month,Date,Tag),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
@@ -194,6 +196,7 @@ tagged(Tag):-
     write(Date),write(" at "),write("0"),write(H),write(":"),write("0"),write(M),write(" and lasts for "),write(Duration),
     write(" hour(s)       due in "),write(R),write(" days.").
 
+%returns the system time for today
 today(Year,Month,Day) :-
     get_time(T),
     date_time_value(year, DateTime, Year),
@@ -201,6 +204,8 @@ today(Year,Month,Day) :-
     date_time_value(day, DateTime, Day),
     stamp_date_time(T, DateTime, local).
 
+%calculate the number of days between the two given dates
+%second date must be later than the first date
 dateCal(Y1,M1,D1,Y1,M1,D2,R):-
     R is (D2-D1).
 
@@ -230,6 +235,7 @@ dateCal(Y1,M1,D1,Y2,M2,D2,R):-
     dateCal(Y,1,0,Y2,M2,D2,A),dateCal(Y1,M1,D1,Y1,12,31,Z),
     (R is Z+A).
 
+%removes all events from the KB before a certain date
 deleteBeforeToday(Year,Month,Day):-
    event(A,B,C,D,X,E,F,G),
    X < Year,
@@ -251,6 +257,7 @@ deleteBeforeToday(Year,Month,Day):-
 deleteBeforeToday(_,_,_):-
    true.
 
+%modifies the name of a specific event
 modifyName:-
    write("Hour of event? "),
    flush_output(current_output),
@@ -294,6 +301,7 @@ modifyName:-
    Name = Ln7,
    add_event(Ln,Ln1,Duration,Ln6,Ln2,Ln3,Ln4,Ln5).
 
+%modifies the tag of a specific event
 modifyTag:-
    write("Hour of event? "),
    flush_output(current_output),
@@ -337,4 +345,3 @@ modifyTag:-
    Date = Ln5,
    add_event(Ln,Ln1,Duration,Ln3,Ln2,Ln4,Ln5,Ln6).
 
-%c
