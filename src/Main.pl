@@ -1,6 +1,6 @@
 %initialization
 %====================================================================
-:-dynamic add_event/9, delete_event/9, removeAll/0, dateCal/6.
+:-dynamic add_event/9, delete_event/9, checkAll/0, dateCal/6.
 dateCal/6.
 :-[holiday].
 :- use_module(library(persistency)).
@@ -68,7 +68,7 @@ checkOut:-
     write("Event "),write(ID),write(" removed.").
 
 %clears all events from KB
-removeAll:-
+checkAll:-
    with_mutex(event_db, retractall_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag,ID)).
 
 
