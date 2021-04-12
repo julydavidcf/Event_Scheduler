@@ -172,7 +172,7 @@ addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID)):-
     event(H,M,Duration,Name,Year,Month,Date,Tag,ID),
     write("Hey, this event already exists."),false.
 
-addValidEvent(event(_,_,_,_,_,_,_,_,_)):-
+addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID)):-
     not(event(H,M,Duration,Name,Year,Month,Date,Tag,ID)).
 
 %checks if the dats is valid
