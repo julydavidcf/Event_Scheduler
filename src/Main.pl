@@ -63,13 +63,13 @@ checkOut:-
     update,
     write("What's the id of the event you want to remove? "),
     flush_output(current_output),
-    readln([ID|XXX]),
-    removeEvent(Hour,Minute,Duration,Name,Year,Month,Date,Tag,ID),
+    readln([ID|_]),
+    removeEvent(_,_,_,_,_,_,_,_,ID),
     write("Event "),write(ID),write(" removed.").
 
 %clears all events from KB
 checkAll:-
-   with_mutex(event_db, retractall_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag,ID)).
+   with_mutex(event_db, retractall_event(_,_,_,_,_,_,_,_,_)).
 
 
 %lists all events in KB
@@ -80,7 +80,7 @@ listEvent:-
 
 %lists all events that is due today and greets the user according to the date today & holidays
 todaysEvent:-
-    today(Year,Month,Date),deleteBeforeToday(Year,Month,Date),isTodayHoliday(Year,Month,Date),nearestHoliday(KK,XX),
+    today(Year,Month,Date),deleteBeforeToday(Year,Month,Date),isTodayHoliday(Year,Month,Date),nearestHoliday(_,XX),
     write("Today is "),write(XX),write("! Get some rest in this extra break day."),
     event(H,M,Duration,Name,Year,Month,Date,Tag,ID),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
     printEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID),R).
@@ -110,7 +110,7 @@ tagged(Tag):-
 checkId:-
    write("What's the id of the event? "),
    flush_output(current_output),
-   readln([ID|XXX]),
+   readln([ID|_]),
     update,
     event(H,M,Duration,Name,Year,Month,Date,Tag,ID),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
     printEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID),R).
@@ -121,12 +121,12 @@ modifyName:-
    update,
    write("What's the id of the event? "),
    flush_output(current_output),
-   readln([ID|XXX]),
+   readln([ID|_]),
    event(_,_,_,Nx,_,_,_,_,ID),
    write("What would you like the original name '"), write(Nx),write("' to?   "),
    flush_output(current_output),
-   readln([Ln6|LLL]),
-   removeEvent(Hour,Minute,Duration,Name,Year,Month,Date,Tag,ID),
+   readln([Ln6|_]),
+   removeEvent(Hour,Minute,Duration,_,Year,Month,Date,Tag,ID),
    add_event(Hour,Minute,Duration,Ln6,Year,Month,Date,Tag,ID),
    today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
    printEvent(event(Hour,Minute,Duration,Ln6,Year,Month,Date,Tag,ID),R).
@@ -136,12 +136,12 @@ modifyTag:-
    update,
    write("What's the id of the event? "),
    flush_output(current_output),
-   readln([ID|XXX]),
+   readln([ID|_]),
    event(_,_,_,_,_,_,_,Nx,ID),
    write("What would you like the original tag '"), write(Nx),write("' to?   "),
    flush_output(current_output),
-   readln([Ln6|LLL]),
-   removeEvent(Hour,Minute,Duration,Name,Year,Month,Date,Tag,ID),
+   readln([Ln6|_]),
+   removeEvent(Hour,Minute,Duration,Name,Year,Month,Date,_,ID),
    add_event(Hour,Minute,Duration,Name,Year,Month,Date,Ln6,ID),
    today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
    printEvent(event(Hour,Minute,Duration,Name,Year,Month,Date,Ln6,ID),R).
@@ -169,16 +169,16 @@ addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID)):-
     event(H,M,Duration,Name,Year,Month,Date,Tag,ID),
     write("Hey, this event already exists.").
 
-addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID)):-
+addValidEvent(event(H,M,Duration,_,Year,Month,Date,_,_)):-
    integer(H),integer(M),integer(Duration),integer(Year),integer(Month),integer(Date), H>=0,H<24,M>=0,M=<59,Duration>0,Year>0,Month>0,Date>0,Month=<12,validDate(Year,Month,Date).
 
 
-addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID)):-
+addValidEvent(event(_,_,_,_,_,_,_,_,_)):-
     write("Hey, don't put weird stuff :("),false.
 
 %checks if the dats is valid
 validDate(Y,2,D):- (X is mod(Y,4)),(D=<29),X==0.
-validDate(Y,2,D):- (X is mod(Y,4)),(D=<28).
+validDate(Y,2,D):- (_ is mod(Y,4)),(D=<28).
 validDate(_,M,D):- (X is mod(M,2)),(D=<31),(M<8),X==1.
 validDate(_,M,D):- (X is mod(M,2)),(D=<31),(M>=8),X==0.
 validDate(_,M,D):- (X is mod(M,2)),(D=<30),(M>=8),X==1.
@@ -197,7 +197,7 @@ idGen(A,B):-
     X is A+1,
     X<10000,
     idGen(X,B).
-idGen(A,B):-
+idGen(_,_):-
     write("You've got too many events!"),false.
 
 %prints a event

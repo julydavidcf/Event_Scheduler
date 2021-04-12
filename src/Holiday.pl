@@ -26,28 +26,28 @@ D<10,
 number_string(Y,YY),number_string(M,MM),number_string(D,DD),
 string_concat(YY,"-0",X1),string_concat(X1,MM,X2),
 string_concat(X2,"-0",X3),string_concat(X3,DD,X4),
-nearestHoliday(K,XXX),K==X4.
+nearestHoliday(K,_),K==X4.
 isTodayHoliday(Y,M,D):-
 M>=10,
 D>=10,
 number_string(Y,YY),number_string(M,MM),number_string(D,DD),
 string_concat(YY,"-",X1),string_concat(X1,MM,X2),
 string_concat(X2,"-",X3),string_concat(X3,DD,X4),
-nearestHoliday(K,XXX),K==X4.
+nearestHoliday(K,_),K==X4.
 isTodayHoliday(Y,M,D):-
 M<10,
 D>=10,
 number_string(Y,YY),number_string(M,MM),number_string(D,DD),
 string_concat(YY,"-0",X1),string_concat(X1,MM,X2),
 string_concat(X2,"-",X3),string_concat(X3,DD,X4),
-nearestHoliday(K,XXX),K==X4.
+nearestHoliday(K,_),K==X4.
 isTodayHoliday(Y,M,D):-
 M>=10,
 D<10,
 number_string(Y,YY),number_string(M,MM),number_string(D,DD),
 string_concat(YY,"-",X1),string_concat(X1,MM,X2),
 string_concat(X2,"-0",X3),string_concat(X3,DD,X4),
-nearestHoliday(K,XXX),K==X4.
+nearestHoliday(K,_),K==X4.
 
 %checks if teh givon day is a weekend
 isTodayWeekend(Y,M,D):-
