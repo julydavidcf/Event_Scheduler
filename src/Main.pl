@@ -111,7 +111,7 @@ tagged(Tag):-
     printEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID),R).
 
 tagged(_):-
-    write("There are no more events with this ID!"),false.
+    write("There are no more events with this Tag!"),false.
 
 %get an event by id
 checkId:-
