@@ -40,7 +40,7 @@ createEvent:-
 
     write("What month the event starting?   "),
     flush_output(current_output),
-    readln([Ln5|X]),integer(Ln5),Ln5>0, Ln5<12,
+    readln([Ln5|X]),integer(Ln5),Ln5>0, Ln5<13,
 
     write("What day the event starting?   "),
     flush_output(current_output),
