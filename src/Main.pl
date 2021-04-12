@@ -69,6 +69,9 @@ checkOut:-
     removeEvent(_,_,_,_,_,_,_,_,ID),
     write("Event "),write(ID),write(" removed.").
 
+checkOut:-
+    write("This id does not exist :("),false.
+
 %clears all events from KB
 checkAll:-
    with_mutex(event_db, retractall_event(_,_,_,_,_,_,_,_,_)).
@@ -117,6 +120,9 @@ checkId:-
     event(H,M,Duration,Name,Year,Month,Date,Tag,ID),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
     printEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID),R).
 
+checkId:-
+    write("The ID does not exist :("),false.
+
 
 %modifies the name of a specific event
 modifyName:-
@@ -127,11 +133,14 @@ modifyName:-
    event(_,_,_,Nx,_,_,_,_,ID),
    write("What would you like the original name '"), write(Nx),write("' to?   "),
    flush_output(current_output),
-   readln([Ln6|_]),
+   readln([Ln6|_]), atom(Ln6),
    removeEvent(Hour,Minute,Duration,_,Year,Month,Date,Tag,ID),
    add_event(Hour,Minute,Duration,Ln6,Year,Month,Date,Tag,ID),
    today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
    printEvent(event(Hour,Minute,Duration,Ln6,Year,Month,Date,Tag,ID),R).
+
+modifyName:-
+    write("The ID does not exist, or you did not follow the format for a name :("),false.
 
 %modifies the tag of a specific event
 modifyTag:-
@@ -142,11 +151,14 @@ modifyTag:-
    event(_,_,_,_,_,_,_,Nx,ID),
    write("What would you like the original tag '"), write(Nx),write("' to?   "),
    flush_output(current_output),
-   readln([Ln6|_]),
+   readln([Ln6|_]),atom(Ln6),
    removeEvent(Hour,Minute,Duration,Name,Year,Month,Date,_,ID),
    add_event(Hour,Minute,Duration,Name,Year,Month,Date,Ln6,ID),
    today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
    printEvent(event(Hour,Minute,Duration,Name,Year,Month,Date,Ln6,ID),R).
+
+modifyTag:-
+    write("The ID does not exist, or you did not follow the format for a tag :("),false.
 
 %tells the user about the next BC holiday
 holiday:-
