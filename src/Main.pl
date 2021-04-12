@@ -18,7 +18,7 @@ update:-
 
 %creats an event according to the user
 createEvent:-
-    write("What is this event?(must start with a lowercase letter)   "),
+    write("What is this event?(must be one word start with a lowercase letter)   "),
     flush_output(current_output),
     readln([Ln|X]),  atom(Ln),
 
@@ -46,7 +46,7 @@ createEvent:-
     flush_output(current_output),
     readln([Ln6|X]),integer(Ln6),Ln6>0,validDate(Ln4,Ln5,Ln6),
 
-    write("Specify a tag.(must start with a lowercase letter)  "),
+    write("Specify a tag.(must be one word start with a lowercase letter)  "),
     flush_output(current_output),
     readln([Ln7|X]),  atom(Ln7),
 
@@ -54,7 +54,6 @@ createEvent:-
     write("Your event is created with ID: "), write(ID),
     write("   press ENTER to contiune"),
 
-%    addValidEvent(event(Ln1,Ln2,Ln3,Ln,Ln4,Ln5,Ln6,Ln7,ID)),
      add_event(Ln1,Ln2,Ln3,Ln,Ln4,Ln5,Ln6,Ln7,ID),
      update.
 
