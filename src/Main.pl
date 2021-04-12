@@ -54,7 +54,7 @@ createEvent:-
     write("Your event is created with ID: "), write(ID),
     write("   press ENTER to contiune"),
 
-    addValidEvent(event(Ln1,Ln2,Ln3,Ln,Ln4,Ln5,Ln6,Ln7,ID)),
+%    addValidEvent(event(Ln1,Ln2,Ln3,Ln,Ln4,Ln5,Ln6,Ln7,ID)),
      add_event(Ln1,Ln2,Ln3,Ln,Ln4,Ln5,Ln6,Ln7,ID),
      update.
 
@@ -167,13 +167,6 @@ delete_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag,ID):-
 
 
 
-%checks if the event is valid
-addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID)):-
-    event(H,M,Duration,Name,Year,Month,Date,Tag,ID),
-    write("Hey, this event already exists."),false.
-
-addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID)):-
-    not(event(H,M,Duration,Name,Year,Month,Date,Tag,ID)).
 
 %checks if the dats is valid
 validDate(Y,2,D):- (X is mod(Y,4)),(D=<29),X==0.
