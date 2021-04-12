@@ -18,45 +18,48 @@ update:-
 
 %creats an event according to the user
 createEvent:-
-    write("What is this event?   "),
+    write("What is this event?(must start with a lowercase letter)   "),
     flush_output(current_output),
-    readln([Ln|X]),
+    readln([Ln|X]),  atom(Ln),
 
     write("What hour is the event starting?(0-23)   "),
     flush_output(current_output),
-    readln([Ln1|X]),
+    readln([Ln1|X]), integer(Ln1),Ln1>=0,Ln1<24,
 
     write("What miniute the event starting?(0-59)   "),
     flush_output(current_output),
-    readln([Ln2|X]),
+    readln([Ln2|X]),integer(Ln2),Ln2>=0,Ln2=<59,
 
     write("How many hours will the event last?(min 1 hr)   "),
     flush_output(current_output),
-    readln([Ln3|X]),
+    readln([Ln3|X]),integer(Ln3), Ln3>0,
 
     write("What year the event starting?   "),
     flush_output(current_output),
-    readln([Ln4|X]),
+    readln([Ln4|X]),integer(Ln4),Ln4>0,
 
     write("What month the event starting?   "),
     flush_output(current_output),
-    readln([Ln5|X]),
+    readln([Ln5|X]),integer(Ln5),Ln5>0, Ln5<12,
 
     write("What day the event starting?   "),
     flush_output(current_output),
-    readln([Ln6|X]),
+    readln([Ln6|X]),integer(Ln6),Ln6>0,validDate(Ln4,Ln5,Ln6),
 
-    write("Specify a tag.  "),
+    write("Specify a tag.(must start with a lowercase letter)  "),
     flush_output(current_output),
-    readln([Ln7|X]),
+    readln([Ln7|X]),  atom(Ln7),
 
     idGen(1000,ID),
     write("Your event is created with ID: "), write(ID),
-
+    write("   press ENTER to contiune"),
 
     addValidEvent(event(Ln1,Ln2,Ln3,Ln,Ln4,Ln5,Ln6,Ln7,ID)),
      add_event(Ln1,Ln2,Ln3,Ln,Ln4,Ln5,Ln6,Ln7,ID),
      update.
+
+createEvent:-
+    write("Hey, please follow the format :("),false.
 
 %removes a event by user
 checkOut:-
@@ -167,14 +170,10 @@ delete_event(Hour,Minute,Duration,Name,Year,Month,Date,Tag,ID):-
 %checks if the event is valid
 addValidEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID)):-
     event(H,M,Duration,Name,Year,Month,Date,Tag,ID),
-    write("Hey, this event already exists.").
-
-addValidEvent(event(H,M,Duration,_,Year,Month,Date,_,_)):-
-   integer(H),integer(M),integer(Duration),integer(Year),integer(Month),integer(Date), H>=0,H<24,M>=0,M=<59,Duration>0,Year>0,Month>0,Date>0,Month=<12,validDate(Year,Month,Date).
-
+    write("Hey, this event already exists."),false.
 
 addValidEvent(event(_,_,_,_,_,_,_,_,_)):-
-    write("Hey, don't put weird stuff :("),false.
+    not(event(H,M,Duration,Name,Year,Month,Date,Tag,ID)).
 
 %checks if the dats is valid
 validDate(Y,2,D):- (X is mod(Y,4)),(D=<29),X==0.
