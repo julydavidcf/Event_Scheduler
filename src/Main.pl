@@ -110,6 +110,8 @@ tagged(Tag):-
     event(H,M,Duration,Name,Year,Month,Date,Tag,ID),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
     printEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID),R).
 
+tagged(_):-
+    write("There are no more events with this ID!"),false.
 
 %get an event by id
 checkId:-
