@@ -50,6 +50,10 @@ For the project, we are consturcting mini event schedualer in prolog. This appli
 ### modifyNTag
 * modifies the tag of an event with the givin ID
 
+### holiday
+* tells the user about the next BC holiday
+
+
 
 ### References:
 The Canadian Holiday API: https://canada-holidays.ca/api
