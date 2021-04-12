@@ -146,6 +146,10 @@ modifyTag:-
    today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
    printEvent(event(Hour,Minute,Duration,Name,Year,Month,Date,Ln6,ID),R).
 
+%tells the user about the next BC holiday
+holiday:-
+    write("The next holiday is "), nearestHoliday(K,X), write(X),write(" on "), write(K), write(", be prepared for it!").
+
 
 %helper functions.
 %==================================================================================
