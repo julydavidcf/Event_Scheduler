@@ -12,11 +12,12 @@ json_read_dict(In,Data),
 close(In).
 
 %returns the nearst holiday for today(global time)
-nearestHoliday(K):-
+nearestHoliday(K,X):-
 getJson(Data),
 N=Data.get('province'),
 P=N.get('nextHoliday'),
-K=P.get('date').
+K=P.get('date'),
+X=P.get('nameEn').
 
 %check if the given day is a holiday
 isTodayHoliday(Y,M,D):-
@@ -25,26 +26,31 @@ D<10,
 number_string(Y,YY),number_string(M,MM),number_string(D,DD),
 string_concat(YY,"-0",X1),string_concat(X1,MM,X2),
 string_concat(X2,"-0",X3),string_concat(X3,DD,X4),
-nearestHoliday(K),K==X4.
+nearestHoliday(K,XXX),K==X4.
 isTodayHoliday(Y,M,D):-
 M>=10,
 D>=10,
 number_string(Y,YY),number_string(M,MM),number_string(D,DD),
 string_concat(YY,"-",X1),string_concat(X1,MM,X2),
 string_concat(X2,"-",X3),string_concat(X3,DD,X4),
-nearestHoliday(K),K==X4.
+nearestHoliday(K,XXX),K==X4.
 isTodayHoliday(Y,M,D):-
 M<10,
 D>=10,
 number_string(Y,YY),number_string(M,MM),number_string(D,DD),
 string_concat(YY,"-0",X1),string_concat(X1,MM,X2),
 string_concat(X2,"-",X3),string_concat(X3,DD,X4),
-nearestHoliday(K),K==X4.
+nearestHoliday(K,XXX),K==X4.
 isTodayHoliday(Y,M,D):-
 M>=10,
 D<10,
 number_string(Y,YY),number_string(M,MM),number_string(D,DD),
 string_concat(YY,"-",X1),string_concat(X1,MM,X2),
 string_concat(X2,"-0",X3),string_concat(X3,DD,X4),
-nearestHoliday(K),K==X4.
+nearestHoliday(K,XXX),K==X4.
+
+%checks if teh givon day is a weekend
+isTodayWeekend(Y,M,D):-
+day_of_the_week(date(Y,M,D),R),R>5.
+
 

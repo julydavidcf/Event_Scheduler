@@ -1,15 +1,8 @@
 %initialization
 %====================================================================
-:- module(
-  event,
-  [
-    add_event/9,
-    delete_event/9,
-    removeAll/0
-  ]
-).
+:-dynamic add_event/9, delete_event/9, removeAll/0, dateCal/6.
 dateCal/6.
-:-[Holiday].
+:-[holiday].
 :- use_module(library(persistency)).
 
 :- persistent(event(hour:integer,minute:integer,duration:integer,name:atom,year:integer,month:integer,date:integer,tag:atom,id:integer)).
@@ -66,7 +59,7 @@ createEvent:-
      update.
 
 %removes a event by user
-remove:-
+checkOut:-
     update,
     write("What's the id of the event you want to remove? "),
     flush_output(current_output),
@@ -85,9 +78,24 @@ listEvent:-
     event(H,M,Duration,Name,Year,Month,Date,Tag,ID),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
     printEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID),R).
 
-%lists all events that is due today
+%lists all events that is due today and greets the user according to the date today & holidays
 todaysEvent:-
-    today(Year,Month,Date),deleteBeforeToday(Year,Month,Date),
+    today(Year,Month,Date),deleteBeforeToday(Year,Month,Date),isTodayHoliday(Year,Month,Date),nearestHoliday(KK,XX),
+    write("Today is "),write(XX),write("! Get some rest in this extra break day."),
+    event(H,M,Duration,Name,Year,Month,Date,Tag,ID),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+    printEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID),R).
+
+todaysEvent:-
+    today(Year,Month,Date),deleteBeforeToday(Year,Month,Date),not(isTodayHoliday(Year,Month,Date)),
+    isTodayWeekend(Year,Month,Date),
+    write("It's weekend! Take a good break!\n"),
+    event(H,M,Duration,Name,Year,Month,Date,Tag,ID),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
+    printEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID),R).
+
+todaysEvent:-
+    today(Year,Month,Date),deleteBeforeToday(Year,Month,Date),not(isTodayHoliday(Year,Month,Date)),
+    not(isTodayWeekend(Year,Month,Date)),
+    write("Today is a work day! Don't overwork yourself, and make sure to get some exercise afterward!\n"),
     event(H,M,Duration,Name,Year,Month,Date,Tag,ID),today(X,Y,Z),dateCal(X,Y,Z,Year,Month,Date,R),
     printEvent(event(H,M,Duration,Name,Year,Month,Date,Tag,ID),R).
 
